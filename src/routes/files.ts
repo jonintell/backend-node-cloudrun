@@ -2,6 +2,7 @@ import { Router } from "express";
 import { Storage } from "@google-cloud/storage";
 import path from "path";
 import multer from "multer";
+import { ADMIN_EMAILS } from "../config/admin";
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -48,7 +49,7 @@ router.post("/upload", upload.array("files"), async (req, res) => {
 // List files for current user (admins can see all)
 router.get("/", async (req, res) => {
   const user = (req as any).user;
-  const isAdmin = (user && user.admin === true) || false;
+  const isAdmin = ADMIN_EMAILS.includes(user.email);
 
   try {
     let files = [];
