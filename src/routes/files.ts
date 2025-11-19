@@ -36,7 +36,7 @@ router.post("/upload", upload.array("files"), async (req, res) => {
     const ext = (file.originalname.split(".").pop() || "").toLowerCase();
     if (!["pdf", "txt", "json"].includes(ext)) continue;
 
-    const destName = `${user.uid}/${Date.now()}_${file.originalname}`;
+    const destName = `${user.uid}/${file.originalname}`;
     const gcsFile = bucket.file(destName);
     await gcsFile.save(file.buffer, { metadata: { contentType: file.mimetype } });
     uploaded.push({ storagePath: destName, fileName: file.originalname });
