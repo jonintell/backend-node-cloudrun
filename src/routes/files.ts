@@ -15,7 +15,7 @@ const storage = new Storage({
 });
 const bucket = storage.bucket(bucketName);
 
-// Helper to list objects under a prefix
+// Helper to list objects under a prefix (user.uid)
 async function listFilesForPrefix(prefix: string) {
   const [files] = await bucket.getFiles({ prefix });
   return files.map(f => ({
@@ -23,6 +23,8 @@ async function listFilesForPrefix(prefix: string) {
     size: Number(f.metadata?.size || 0),
     contentType: f.metadata?.contentType || "",
     updated: f.metadata?.updated || null,
+    isOwner: f.name.startsWith(prefix),
+    type: f.metadata?.contentType?.split("/")[1] || "",
   }));
 }
 
@@ -56,7 +58,13 @@ router.get("/", async (req, res) => {
     if (isAdmin) {
       // List all objects in bucket
       const [allFiles] = await bucket.getFiles();
-      files = allFiles.map(f => ({ name: f.name, size: Number(f.metadata?.size || 0), updated: f.metadata?.updated || null }));
+      files = allFiles.map(f => (
+        { name: f.name, 
+          size: Number(f.metadata?.size || 0), 
+          updated: f.metadata?.updated || null,
+          isOwner: f.name.startsWith(`${user.uid}/`), 
+          type: f.metadata?.contentType?.split("/")[1] || "",
+        }));
     } else {
       files = await listFilesForPrefix(`${user.uid}/`);
     }
@@ -90,7 +98,7 @@ router.get("/", async (req, res) => {
 // Delete (only owner)
 router.delete("/:name", async (req, res) => {
   const user = (req as any).user;
-  const name = req.params.name;
+  const name = `${user.uid}/${req.params.name}`;
   try {
     // Verify ownership: name must start with user.uid/
     if (!name.startsWith(`${user.uid}/`)) {
