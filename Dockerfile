@@ -4,7 +4,11 @@ FROM node:20-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --omit=dev
+COPY env .env
+COPY .env .env
+##rename .env to env for deployment since not visible by windows
+
+RUN npm install  
 
 COPY . .
 RUN npm run build
