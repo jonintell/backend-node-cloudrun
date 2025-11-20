@@ -4,9 +4,9 @@ FROM node:20-alpine
 WORKDIR /app
 
 COPY package*.json ./
-COPY env .env
-# COPY .env .env
-##rename .env to env for deployment since not visible by windows
+COPY .env ./
+COPY serviceAccountKey.json ./
+
 
 RUN npm install  
 
