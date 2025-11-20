@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY package*.json ./
 COPY env .env
-COPY .env .env
+# COPY .env .env
 ##rename .env to env for deployment since not visible by windows
 
 RUN npm install  
